@@ -1,4 +1,4 @@
-package com.example.arqui_mvc
+package com.example.vista
 
 import org.junit.Test
 
