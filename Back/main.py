@@ -50,7 +50,7 @@ async def eliminar_datos_por_nombre(nombre_usuario: str):
         # Eliminar el usuario
         cursor.execute("DELETE FROM usuario WHERE nombre_usuario = :nombre_usuario", {"nombre_usuario": nombre_usuario})
         connection.commit()
-        return {"message": f"Usuario eliminado correctamente"}
+        return {"message": "Usuario eliminado correctamente"}
     except cx_Oracle.Error as error:
         print("Error al eliminar datos:", error)
         raise HTTPException(status_code=500, detail="Error al eliminar datos de la base de datos")
@@ -64,7 +64,7 @@ async def buscar_usuario_por_nombre(nombre_usuario: str):
         cursor.execute("SELECT * FROM usuario WHERE nombre_usuario = :nombre_usuario", {"nombre_usuario": nombre_usuario})
         usuario = cursor.fetchone()
         if usuario:
-            return {"Usuario encontrado"}
+            return {"mensaje":"Usuario encontrado"}
         else:
             raise HTTPException(status_code=404, detail="El usuario no existe")
     except cx_Oracle.Error as error:
@@ -86,7 +86,7 @@ async def crear_usuario_endpoint(nombre_usuario: str):
         cursor.execute("INSERT INTO usuario (nombre_usuario) VALUES (:nombre_usuario)",
                        {"nombre_usuario": nombre_usuario})
         connection.commit()
-        return {"message": f"Usuario creado correctamente"}
+        return {{"mensaje":"Usuario creado correctamente"}}
     except cx_Oracle.Error as error:
         print("Error al crear usuario:", error)
         raise HTTPException(status_code=500, detail="Error al crear usuario en la base de datos")
