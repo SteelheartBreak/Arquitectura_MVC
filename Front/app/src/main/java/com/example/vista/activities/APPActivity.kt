@@ -50,7 +50,8 @@ class APPActivity : AppCompatActivity() {
         call.enqueue(object : Callback<Usuario> {
             override fun onResponse(call: Call<Usuario>, response: Response<Usuario>) {
                 if (response.isSuccessful) {
-                    val respuesta = response.body()
+                    val respuesta = response.body().toString()
+                    flag = respuesta == "Usuario eliminado correctamente"
                 }
                 else{
                     Log.println(Log.ERROR,"No","No encontrado")

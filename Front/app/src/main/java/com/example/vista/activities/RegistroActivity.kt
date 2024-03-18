@@ -18,6 +18,7 @@ class RegistroActivity : AppCompatActivity() {
     var nombre = ""
     var flag = false
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRegistroBinding.inflate(layoutInflater)
@@ -69,7 +70,8 @@ class RegistroActivity : AppCompatActivity() {
         call.enqueue(object : Callback<Usuario> {
             override fun onResponse(call: Call<Usuario>, response: Response<Usuario>) {
                 if (response.isSuccessful) {
-                    val respuesta = response.body()
+                    val respuesta = response.body().toString()
+                    flag = respuesta == "Usuario creado correctamente"
                 }
                 else{
                     Log.println(Log.ERROR,"No","No encontrado")
