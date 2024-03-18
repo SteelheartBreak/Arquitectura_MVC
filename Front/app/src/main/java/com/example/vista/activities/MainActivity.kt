@@ -8,6 +8,7 @@ import android.widget.Toast
 import com.example.vista.data.Usuario
 import com.example.vista.databinding.ActivityMainBinding
 import com.example.vista.interfaces.ApiService
+import com.google.gson.JsonObject
 import retrofit2.*
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -28,7 +29,6 @@ class MainActivity : AppCompatActivity() {
 
         apiService = retrofit.create(ApiService::class.java)
 
-
         binding.botonRegistrarse.setOnClickListener{
             val intent = Intent (this, RegistroActivity::class.java)
             startActivity(intent)
@@ -36,36 +36,49 @@ class MainActivity : AppCompatActivity() {
 
         binding.botonIniciarSesion.setOnClickListener{
             usuario = binding.inputUsuario.text.toString()
-            if (buscarUsuarioPorNombre(usuario)){
-                val intent = Intent (this, APPActivity::class.java)
-                startActivity(intent)
-            }
-            else{
-                val toast = Toast.makeText(this, "Usuario no encontrado", Toast.LENGTH_SHORT)
-                toast.show()
-            }
-
+            buscarUsuarioPorNombre(usuario)
         }
 
     }
 
-    private fun buscarUsuarioPorNombre(nombreUsuario: String): Boolean {
-        var flag = false
+    private fun buscarUsuarioPorNombre(nombreUsuario: String) {
         val call = apiService.buscarUsuarioPorNombre(nombreUsuario)
-        call.enqueue(object : Callback<String> {
-            override fun onResponse(call: Call<String>, response: Response<String>) {
+        call.enqueue(object : Callback<JsonObject> {
+            override fun onResponse(call: Call<JsonObject>, response: Response<JsonObject>) {
                 if (response.isSuccessful) {
-                    flag = response.body() == "Usuario encontrado"
+                    val jsonObject = response.body()
+                    val mensaje = jsonObject?.get("message")?.asString
+                    if (mensaje == "Usuario encontrado") {
+                        val intent = Intent(this@MainActivity, APPActivity::class.java)
+                        startActivity(intent)
+                    } else {
+                        val toast = Toast.makeText(
+                            this@MainActivity,
+                            "Usuario no encontrado",
+                            Toast.LENGTH_SHORT
+                        )
+                        toast.show()
+                    }
+                } else {
+                    val toast = Toast.makeText(
+                        this@MainActivity,
+                        "Usuario no encontrado",
+                        Toast.LENGTH_SHORT
+                    )
+                    toast.show()
                 }
-                else{
-                    flag = false
-                }
-                }
+            }
 
-            override fun onFailure(call: Call<String>, t: Throwable) {
-                Log.println(Log.ERROR,"No","API not up")
+            override fun onFailure(call: Call<JsonObject>, t: Throwable) {
+                Log.e("MainActivity", "Error en la solicitud: ${t.message}")
+                val toast = Toast.makeText(
+                    this@MainActivity,
+                    "Error en la solicitud: ${t.message}",
+                    Toast.LENGTH_SHORT
+                )
+                toast.show()
             }
         })
-        return flag
     }
+
 }

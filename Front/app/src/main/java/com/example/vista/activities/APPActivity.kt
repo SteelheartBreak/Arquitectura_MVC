@@ -9,6 +9,7 @@ import com.example.vista.data.Usuario
 import com.example.vista.databinding.ActivityAppactivityBinding
 import com.example.vista.databinding.ActivityRegistroBinding
 import com.example.vista.interfaces.ApiService
+import com.google.gson.JsonObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -33,35 +34,51 @@ class APPActivity : AppCompatActivity() {
 
         binding.botonEliminar.setOnClickListener{
             val usuario = binding.inputUsuario.text.toString()
-            if(eliminarUsuarioPorNombre(usuario)){
-                val toast = Toast.makeText(this, "Usuario eliminado exitosamente", Toast.LENGTH_SHORT)
-                toast.show()
-            }
-            else{
-                val toast = Toast.makeText(this, "Usuario no encontrado", Toast.LENGTH_SHORT)
-                toast.show()
-            }
+            eliminarUsuarioPorNombre(usuario)
         }
     }
 
-    private fun eliminarUsuarioPorNombre(nombreUsuario: String):Boolean{
-        var flag = false
+    private fun eliminarUsuarioPorNombre(nombreUsuario: String) {
         val call = apiService.eliminarUsuarioPorNombre(nombreUsuario)
-        call.enqueue(object : Callback<String> {
-            override fun onResponse(call: Call<String>, response: Response<String>) {
+        call.enqueue(object : Callback<JsonObject> {
+            override fun onResponse(call: Call<JsonObject>, response: Response<JsonObject>) {
                 if (response.isSuccessful) {
-                    val respuesta = response.body().toString()
-                    flag = respuesta == "Usuario eliminado correctamente"
-                }
-                else{
-                    Log.println(Log.ERROR,"No","No encontrado")
+                    val jsonObject = response.body()
+                    val mensaje = jsonObject?.get("message")?.asString
+                    if (mensaje == "Usuario eliminado correctamente") {
+                        val toast = Toast.makeText(
+                            this@APPActivity,
+                            "Usuario eliminado correctamente",
+                            Toast.LENGTH_SHORT
+                        )
+                        toast.show()
+                    } else {
+                        val toast = Toast.makeText(
+                            this@APPActivity,
+                            "Usuario no encontrado",
+                            Toast.LENGTH_SHORT
+                        )
+                        toast.show()
+                    }
+                } else {
+                    val toast = Toast.makeText(
+                        this@APPActivity,
+                        "Usuario no encontrado",
+                        Toast.LENGTH_SHORT
+                    )
+                    toast.show()
                 }
             }
 
-            override fun onFailure(call: Call<String>, t: Throwable) {
-                Log.println(Log.ERROR,"No","API not up")
+            override fun onFailure(call: Call<JsonObject>, t: Throwable) {
+                Log.e("MainActivity", "Error en la solicitud: ${t.message}")
+                val toast = Toast.makeText(
+                    this@APPActivity,
+                    "Error en la solicitud: ${t.message}",
+                    Toast.LENGTH_SHORT
+                )
+                toast.show()
             }
         })
-        return flag
     }
 }

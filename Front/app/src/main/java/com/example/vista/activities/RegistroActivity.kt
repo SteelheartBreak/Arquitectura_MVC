@@ -8,16 +8,13 @@ import android.widget.Toast
 import com.example.vista.data.Usuario
 import com.example.vista.databinding.ActivityRegistroBinding
 import com.example.vista.interfaces.ApiService
+import com.google.gson.JsonObject
 import retrofit2.*
 import retrofit2.converter.gson.GsonConverterFactory
 
 class RegistroActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRegistroBinding
     private lateinit var apiService: ApiService
-    var usuario =""
-    var nombre = ""
-    var flag = false
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,16 +36,7 @@ class RegistroActivity : AppCompatActivity() {
         binding.botonRegistrarseR.setOnClickListener{
             if (validateForm()){
                 val usuario = binding.inputUsuarioR.text.toString()
-                if(crearUsuarioPorNombre(usuario)){
-                    val toast = Toast.makeText(this, "Usuario creado exitosamente", Toast.LENGTH_SHORT)
-                    toast.show()
-                    val intent = Intent (this, MainActivity::class.java)
-                    startActivity(intent)
-                }
-                else{
-                    val toast = Toast.makeText(this, "El usuario ya existe", Toast.LENGTH_SHORT)
-                    toast.show()
-                }
+                crearUsuarioPorNombre(usuario)
             }
             else{
                 val toast = Toast.makeText(this, "Llena todas las casillas", Toast.LENGTH_SHORT)
@@ -64,24 +52,49 @@ class RegistroActivity : AppCompatActivity() {
         return usuario.isNotEmpty() && nombre.isNotEmpty()
     }
 
-    private fun crearUsuarioPorNombre(nombreUsuario: String):Boolean{
-        var flag = false
+    private fun crearUsuarioPorNombre(nombreUsuario: String) {
         val call = apiService.crearUsuarioPorNombre(nombreUsuario)
-        call.enqueue(object : Callback<String> {
-            override fun onResponse(call: Call<String>, response: Response<String>) {
+        call.enqueue(object : Callback<JsonObject> {
+            override fun onResponse(call: Call<JsonObject>, response: Response<JsonObject>) {
                 if (response.isSuccessful) {
-                    val respuesta = response.body().toString()
-                    flag = respuesta == "Usuario creado correctamente"
-                }
-                else{
-                    Log.println(Log.ERROR,"No","No encontrado")
+                    val jsonObject = response.body()
+                    val mensaje = jsonObject?.get("message")?.asString
+                    if (mensaje == "Usuario creado correctamente") {
+                        val toast = Toast.makeText(
+                            this@RegistroActivity,
+                            "Usuario creado correctamente",
+                            Toast.LENGTH_SHORT
+                        )
+                        toast.show()
+                        val intent = Intent(this@RegistroActivity, MainActivity::class.java)
+                        startActivity(intent)
+                    } else {
+                        val toast = Toast.makeText(
+                            this@RegistroActivity,
+                            "Usuario ya existente",
+                            Toast.LENGTH_SHORT
+                        )
+                        toast.show()
+                    }
+                } else {
+                    val toast = Toast.makeText(
+                        this@RegistroActivity,
+                        "Usuario ya existente",
+                        Toast.LENGTH_SHORT
+                    )
+                    toast.show()
                 }
             }
 
-            override fun onFailure(call: Call<String>, t: Throwable) {
-                Log.println(Log.ERROR,"No","API not up")
+            override fun onFailure(call: Call<JsonObject>, t: Throwable) {
+                Log.e("RegistroActivity", "Error en la solicitud: ${t.message}")
+                val toast = Toast.makeText(
+                    this@RegistroActivity,
+                    "Error en la solicitud: ${t.message}",
+                    Toast.LENGTH_SHORT
+                )
+                toast.show()
             }
         })
-        return flag
     }
 }
