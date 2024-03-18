@@ -45,12 +45,12 @@ async def eliminar_datos_por_nombre(nombre_usuario: str):
                        {"nombre_usuario": nombre_usuario})
         count = cursor.fetchone()[0]
         if count == 0:
-            raise HTTPException(status_code=404, detail=f"El usuario '{nombre_usuario}' no existe")
+            raise HTTPException(status_code=404, detail=f"El usuario no existe")
 
         # Eliminar el usuario
         cursor.execute("DELETE FROM usuario WHERE nombre_usuario = :nombre_usuario", {"nombre_usuario": nombre_usuario})
         connection.commit()
-        return {"message": f"Usuario '{nombre_usuario}' eliminado correctamente"}
+        return {"message": f"Usuario eliminado correctamente"}
     except cx_Oracle.Error as error:
         print("Error al eliminar datos:", error)
         raise HTTPException(status_code=500, detail="Error al eliminar datos de la base de datos")
@@ -80,13 +80,13 @@ async def crear_usuario_endpoint(nombre_usuario: str):
                        {"nombre_usuario": nombre_usuario})
         count = cursor.fetchone()[0]
         if count > 0:
-            raise HTTPException(status_code=400, detail=f"El usuario '{nombre_usuario}' ya existe")
+            raise HTTPException(status_code=400, detail=f"El usuario ya existe")
 
         # Insertar el nuevo usuario en la base de datos
         cursor.execute("INSERT INTO usuario (nombre_usuario) VALUES (:nombre_usuario)",
                        {"nombre_usuario": nombre_usuario})
         connection.commit()
-        return {"message": f"Usuario '{nombre_usuario}' creado correctamente"}
+        return {"message": f"Usuario creado correctamente"}
     except cx_Oracle.Error as error:
         print("Error al crear usuario:", error)
         raise HTTPException(status_code=500, detail="Error al crear usuario en la base de datos")
