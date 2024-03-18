@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://localhost:8000")
+            .baseUrl("http://10.43.100.80:8000")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
