@@ -86,7 +86,7 @@ async def crear_usuario_endpoint(nombre_usuario: str):
         cursor.execute("INSERT INTO usuario (nombre_usuario) VALUES (:nombre_usuario)",
                        {"nombre_usuario": nombre_usuario})
         connection.commit()
-        return {{"message":"Usuario creado correctamente"}}
+        return {"message":"Usuario creado correctamente"}
     except cx_Oracle.Error as error:
         print("Error al crear usuario:", error)
         raise HTTPException(status_code=500, detail="Error al crear usuario en la base de datos")
