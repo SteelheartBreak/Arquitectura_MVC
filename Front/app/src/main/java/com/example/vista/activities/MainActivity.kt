@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.botonIniciarSesion.setOnClickListener{
             usuario = binding.inputUsuario.text.toString()
-            if (usuario == buscarUsuarioPorNombre(usuario)){
+            if (buscarUsuarioPorNombre(usuario)){
                 val intent = Intent (this, APPActivity::class.java)
                 startActivity(intent)
             }
@@ -49,24 +49,23 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun buscarUsuarioPorNombre(nombreUsuario: String): String {
-        var usuarioN = ""
+    private fun buscarUsuarioPorNombre(nombreUsuario: String): Boolean {
+        var flag = false
         val call = apiService.buscarUsuarioPorNombre(nombreUsuario)
-        call.enqueue(object : Callback<Usuario> {
-            override fun onResponse(call: Call<Usuario>, response: Response<Usuario>) {
+        call.enqueue(object : Callback<String> {
+            override fun onResponse(call: Call<String>, response: Response<String>) {
                 if (response.isSuccessful) {
-                    val respuesta = response.body()
-                    usuarioN = respuesta?.nombre_usuario ?: "Usuario no encontrado"
+                    flag = response.body() == "Usuario encontrado"
                 }
                 else{
-                    usuarioN = ""
+                    flag = false
                 }
                 }
 
-            override fun onFailure(call: Call<Usuario>, t: Throwable) {
+            override fun onFailure(call: Call<String>, t: Throwable) {
                 Log.println(Log.ERROR,"No","API not up")
             }
         })
-        return usuarioN
+        return flag
     }
 }

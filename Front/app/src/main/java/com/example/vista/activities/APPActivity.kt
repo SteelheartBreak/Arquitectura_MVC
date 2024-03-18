@@ -25,7 +25,7 @@ class APPActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://localhost:8000")
+            .baseUrl("http://10.43.100.80:8000")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
@@ -47,8 +47,8 @@ class APPActivity : AppCompatActivity() {
     private fun eliminarUsuarioPorNombre(nombreUsuario: String):Boolean{
         var flag = false
         val call = apiService.eliminarUsuarioPorNombre(nombreUsuario)
-        call.enqueue(object : Callback<Usuario> {
-            override fun onResponse(call: Call<Usuario>, response: Response<Usuario>) {
+        call.enqueue(object : Callback<String> {
+            override fun onResponse(call: Call<String>, response: Response<String>) {
                 if (response.isSuccessful) {
                     val respuesta = response.body().toString()
                     flag = respuesta == "Usuario eliminado correctamente"
@@ -58,7 +58,7 @@ class APPActivity : AppCompatActivity() {
                 }
             }
 
-            override fun onFailure(call: Call<Usuario>, t: Throwable) {
+            override fun onFailure(call: Call<String>, t: Throwable) {
                 Log.println(Log.ERROR,"No","API not up")
             }
         })
